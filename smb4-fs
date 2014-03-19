@@ -1,0 +1,105 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:          samba
+# Required-Start:    $network $local_fs $remote_fs
+# Required-Stop:     $network $local_fs $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: start Samba daemons (winbindd, smbd and nmbd)
+### END INIT INFO
+
+#
+# Start/stops the Samba 4 daemons.
+#
+
+PIDDIR=/usr/local/samba/var/run
+SMBPID=$PIDDIR/smbd.pid
+NMBPID=$PIDDIR/nmbd.pid
+WINBINDPID=$PIDDIR/winbindd.pid
+
+# clear conflicting settings from the environment
+unset TMPDIR
+
+. /lib/lsb/init-functions
+
+case "$1" in
+        start)
+                # Make sure we have our PIDDIR, even if it's on a tmpfs
+                install -o root -g root -m 755 -d $PIDDIR
+                log_daemon_msg "Starting Samba daemons" "winbindd, smbd and nmbd"
+                #winbindd
+                if ! start-stop-daemon --start --quiet --oknodo --exec /usr/local/samba/sbin/winbindd -- -D; then
+                        log_end_msg 1
+                        exit 1
+                fi
+
+                #smbd
+                if ! start-stop-daemon --start --quiet --oknodo --exec /usr/local/samba/sbin/smbd -- -D; then
+                        log_end_msg 1
+                        exit 1
+                fi
+
+                #nmbd
+                if ! start-stop-daemon --start --quiet --oknodo --exec /usr/local/samba/sbin/nmbd -- -D; then
+                        log_end_msg 1
+                        exit 1
+                fi
+
+                log_end_msg 0
+                ;;
+        stop)
+                 log_daemon_msg "Stopping Samba daemons" "winbindd, smbd and nmbd"
+
+                if ! start-stop-daemon --stop --quiet --pidfile $NMBPID; then
+                        log_end_msg 1
+                        exit 1
+                fi
+
+                if ! start-stop-daemon --stop --quiet --pidfile $SMBPID; then
+                        log_end_msg 1
+                        exit 1
+                fi
+                if ! start-stop-daemon --stop --quiet --pidfile $WINBINDPID; then
+                        log_end_msg 1
+                        exit 1
+                fi
+                # Wait a little and remove stale PID file
+                sleep 1
+                if [ -f $NMBPID ] && ! ps h `cat $NMBPID` > /dev/null
+                then
+                        # Stale PID file (nmb was succesfully stopped), so remove it...
+                        rm -f $NMBPID
+                fi
+                if [ -f $SMBPID ] && ! ps h `cat $SMBPID` > /dev/null
+                then
+                        # Stale PID file (smb was succesfully stopped), so remove it...
+                        rm -f $SMBPID
+                fi
+                if [ -f $WINBINDPID ] && ! ps h `cat $WINBINDPID` > /dev/null
+                then
+                        # Stale PID file (winbind was succesfully stopped), so remove it...
+                        rm -f $WINBINDPID
+                fi
+
+                log_end_msg 0
+
+                ;;
+        restart|force-reload)
+                $0 stop
+                sleep 1
+                $0 start
+                ;;
+        status)
+                status_of_proc -p $WINBINDPID /usr/local/samba/sbin/winbindd winbindd
+                status_of_proc -p $SMBPID /usr/local/samba/sbin/smbd smbd
+                status_of_proc -p $NMBPID /usr/local/samba/sbin/nmbd nmbd
+                exit $?
+                ;;
+        *)
+                echo "Usage: /etc/init.d/samba {start|stop|restart|force-reload|status}"
+                exit 1
+                ;;
+esac
+
+exit 0

@@ -1,0 +1,38 @@
+sed -e 's/CTDB_RECOVERY_LOCK=.*$/
+CTDB_RECOVERY_LOCK="\/var\/lib\/samba\/glusterfs\/ctdb\/lock"/g' \
+/var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
+
+sed -e 's/# CTDB_PUBLIC_ADDRESSES=.*$/
+CTDB_PUBLIC_ADDRESSES="\/var\/lib\/samba\/glusterfs\/ctdb\/public_addresses"/g' /var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
+
+sed -e 's/# CTDB_NODES=.*$/
+CTDB_NODES="\/var\/lib\/samba\/glusterfs\/ctdb\/nodes"/g' /var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
+
+sed -e 's/# CTDB_INIT_STYLE=redhat/
+CTDB_INIT_STYLE=debian/g' /var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
+
+sed -e 's/# CTDB_SERVICE_SMB=smb/
+CTDB_SERVICE_SMB=samba/g' /var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
+
+
+sed -e 's/# CTDB_PUBLIC_INTERFACE=eth0/
+CTDB_PUBLIC_INTERFACE=eth0/g' \
+/var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
+
+sed -e 's/# CTDB_MANAGES_SAMBA=yes/
+CTDB_MANAGES_SAMBA=yes/g' \
+/var/lib/samba/glusterfs/ctdb/ctdb > \
+/var/lib/samba/glusterfs/ctdb/ctdb-new && \
+mv /var/lib/samba/glusterfs/ctdb/ctdb{-new,} && echo OK
